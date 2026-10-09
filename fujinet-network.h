@@ -166,6 +166,21 @@ uint8_t network_json_parse(const char *devicespec);
  */
 int16_t network_json_query(const char *devicespec, const char *query, char *s);
 
+#ifdef __PMD85__
+#define FN_HAS_NETWORK_JSON_QUERY_N
+/**
+ * @brief  Perform JSON query
+ * @param  devicespec pointer to device specification, e.g. "N1:HTTPS://fujinet.online/"
+ * @param  query pointer to string containing json path to query, e.g. "/path/field". No need to add device drive.
+ * @param  s pointer to receiving string, nul terminated, if no data was retrieved, sets it to an empty string
+ * @param  maxlen Maximum length of the receiving string
+ * @return Bytes read, or negative values represent fujinet-network error code (See FN_ERR_* values)
+ * 
+ * Assumes an open and parsed json.
+ */
+int16_t network_json_query_n(const char *devicespec, const char *query, char *s, uint16_t maxlen);
+#endif /* __PMD85__ */
+
 /**
  * @brief  Sets the channel mode.
  * @param  devicespec pointer to device specification, e.g. "N1:HTTPS://fujinet.online/"

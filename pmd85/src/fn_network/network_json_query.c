@@ -16,9 +16,10 @@ int16_t network_json_query(const char *devicespec, const char *query, char *s)
         char query[256];
     } jq;
 
-    uint16_t bw=0;
-    uint8_t c=0, err=0;
     uint8_t unit = network_unit(devicespec);
+
+    int16_t br;
+    char *st;
 
     jq.opcode = OP_NET;
     jq.unit = unit;
@@ -29,10 +30,22 @@ int16_t network_json_query(const char *devicespec, const char *query, char *s)
     bus_ready();
     dwwrite((uint8_t *)&jq, sizeof(jq));
 
-    network_status(devicespec, &bw, &c, &err);
+    br = network_read_nb(devicespec, (uint8_t *)s, ~1);
 
-    if (!bw)
-        return 0;
+    if (br <= 0) {
+        *s = '\0'; // ensure response is always nul terminated
+    }
+    else {
+        st = s + br - 1;
+        if (*st == '\n' || *st == '\0') {
+            // replace EOL with nul
+            *st = '\0';
+            --br;
+        }
+        else {
+            st[1] = '\0'; // room left after data, nul terminate
+        }
+    }
 
-    return network_read(devicespec, (uint8_t *)s, bw);
+    return br;
 }
